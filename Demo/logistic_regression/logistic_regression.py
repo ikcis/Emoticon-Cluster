@@ -57,7 +57,7 @@ class LogisticRegression():
 
 
 def main():
-    # Load dataset
+    # Load Dataset
     data = datasets.load_iris()
     X = normalize(data.data[data.target != 0])
     y = data.target[data.target != 0]

@@ -189,7 +189,7 @@ validation_size = .2
 # validation loss不再改善的等待时间
 early_stopping = None
 
-train_path = 'dataset'
+train_path = 'Dataset'
 
 # 读取测试集数据
 data = read_train_sets(train_path, img_size, classes, validation_size=validation_size)
