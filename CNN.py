@@ -191,14 +191,14 @@ early_stopping = None
 
 train_path = 'dataset'
 
-# 读取数据
+# 读取测试集数据
 data = read_train_sets(train_path, img_size, classes, validation_size=validation_size)
 print("Size of:")
 print("- Training-set:\t\t{}".format(len(data.train.labels)))
 print("- Validation:\t{}".format(len(data.valid.labels)))
 
 
-# TensorFlow图谱
+# TensorFlow Graph
 def new_weights(shape):
     return tf.Variable(tf.truncated_normal(shape, stddev=0.05))
 
@@ -212,16 +212,24 @@ def new_conv_layer(input, num_input_channels, filter_size, num_filters, use_pool
     shape = [filter_size, filter_size, num_input_channels, num_filters]
     weights = new_weights(shape=shape)
     biases = new_biases(length=num_filters)
+
+    # strides在每个维度中都是1，第一个和最后一个一般都是1，因为第一个是图像数量，最后一个是输入通道
     layer = tf.nn.conv2d(input=input,
                          filter=weights,
                          strides=[1, 1, 1, 1],
-                         padding='SAME')
+                         padding='SAME')  # 输入输出的size相同
+    # 增加biases
     layer += biases
+    # 池化操作 保留主要的特征同时减少参数(降维)和计算量，防止过拟合，提高模型泛化能力
     if use_pooling:
+        # 2x2 max-pooling
         layer = tf.nn.max_pool(value=layer,
                                ksize=[1, 2, 2, 1],
                                strides=[1, 2, 2, 1],
                                padding='SAME')
+    # 激活函数
+    # 激活函数一般在池化操作之前执行，但如果relu(max_pool(x)) == max_pool(relu(x))
+    # 那么激活函数放在池化操作之后进行可以节约大量激活函数的迭代
     layer = tf.nn.relu(layer)
     return layer, weights
 
