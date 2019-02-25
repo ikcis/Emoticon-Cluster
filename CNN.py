@@ -10,7 +10,7 @@ from sklearn.utils import shuffle
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 
-# 读取Dataset
+# 读取数据集
 
 def load_train(train_path, image_size, classes):
     images = []
@@ -19,6 +19,7 @@ def load_train(train_path, image_size, classes):
     cls = []
 
     print('Reading training images')
+    # 数据集由多个由标签命名的文件夹组成
     for fld in classes:
         index = classes.index(fld)
         print('Loading {} files (Index: {})'.format(fld, index))
@@ -56,6 +57,7 @@ def load_test(test_path, image_size):
         X_test.append(img)
         X_test_id.append(flbase)
 
+    # 对测试集标准化
     X_test = np.array(X_test, dtype=np.uint8)
     X_test = X_test.astype('float32')
     X_test = X_test / 255
@@ -67,6 +69,8 @@ class DataSet(object):
 
     def __init__(self, images, labels, ids, cls):
         self._num_examples = images.shape[0]
+        # 调整shape 由[num examples, rows, columns, depth]至[num examples, rows*columns]
+        # 由[0, 255]至[0.0, 1.0]
         images = images.astype(np.float32)
         images = np.multiply(images, 1.0 / 255.0)
         self._images = images
@@ -103,14 +107,14 @@ class DataSet(object):
     def next_batch(self, batch_size):
         start = self._index_in_epoch
         self._index_in_epoch += batch_size
-
+        # 完成当前epoch
         if self._index_in_epoch > self._num_examples:
             self._epochs_completed += 1
             start = 0
             self._index_in_epoch = batch_size
             assert batch_size <= self._num_examples
         end = self._index_in_epoch
-
+        # 根据这份data返回下一个batch的example
         return self._images[start:end], self._labels[start:end], self._ids[start:end], self._cls[start:end]
 
 
@@ -148,30 +152,44 @@ def read_test_set(test_path, image_size):
 
 
 # 配置和选定超参数
+
+# 卷积层1
 filter_size1 = 5
 num_filters1 = 64
 
+# 卷积层2
 filter_size2 = 3
 num_filters2 = 64
 
+# 全连接层1
 fc1_size = 128
+
+# 全连接层2
 fc2_size = 128
 
+# 图像通道数
 num_channels = 3
+
+# 图像维度
 img_size = 64
+
+# 平坦化成一维向量后的size
 img_size_flat = img_size * img_size * num_channels
+
+# 高度和宽度
 img_shape = (img_size, img_size)
 
 classes = ['Ali', 'Cangshu', 'Huaji', 'Panda', 'Sadfrog']
 num_classes = len(classes)
 
 batch_size = 32
+# 验证集大小
 validation_size = .2
 
+# validation loss不再改善的等待时间
 early_stopping = None
 
 train_path = 'dataset'
-checkpoint_dir = "ckpoint"
 
 # 读取数据
 data = read_train_sets(train_path, img_size, classes, validation_size=validation_size)
