@@ -236,9 +236,14 @@ def new_conv_layer(input, num_input_channels, filter_size, num_filters, use_pool
 
 # 平坦化layer
 def flatten_layer(layer):
+    # layer_shape == [num_images, img_height, img_width, num_channels]
     layer_shape = layer.get_shape()
     num_features = layer_shape[1:4].num_elements()
+
+    # [num_images, num_features]
     layer_flat = tf.reshape(layer, [-1, num_features])
+
+    # flattened layer [num_images, img_height * img_width * num_channels]
     return layer_flat, num_features
 
 
@@ -246,7 +251,9 @@ def flatten_layer(layer):
 def new_fc_layer(input, num_inputs, num_outputs, use_relu=True):
     weights = new_weights(shape=[num_inputs, num_outputs])
     biases = new_biases(length=num_outputs)
+
     layer = tf.matmul(input, weights) + biases
+
     if use_relu:
         layer = tf.nn.relu(layer)
     return layer
@@ -265,7 +272,7 @@ layer_conv1, weights_conv1 = new_conv_layer(input=x_image, num_input_channels=nu
 # 卷积层2
 layer_conv2, weights_conv2 = new_conv_layer(input=layer_conv1, num_input_channels=num_filters1,
                                             filter_size=filter_size2, num_filters=num_filters2, use_pooling=True)
-
+# Flatten Layer
 layer_flat, num_features = flatten_layer(layer_conv2)
 
 # 全连接层1
@@ -274,13 +281,16 @@ layer_fc1 = new_fc_layer(input=layer_flat, num_inputs=num_features, num_outputs=
 # 全连接层2
 layer_fc2 = new_fc_layer(input=layer_fc1, num_inputs=fc1_size, num_outputs=num_classes, use_relu=False)
 
+# Predicted Class
 y_pred = tf.nn.softmax(layer_fc2)
 y_pred_cls = tf.argmax(y_pred, axis=1)
 
+# 最佳化cost function
 cross_entropy = tf.nn.softmax_cross_entropy_with_logits_v2(logits=layer_fc2, labels=y_true)
 cost = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate=1e-4).minimize(cost)
 
+# 表现衡量
 correct_prediction = tf.equal(y_pred_cls, y_true_cls)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
@@ -291,12 +301,14 @@ train_batch_size = batch_size
 
 
 def print_progress(epoch, feed_dict_train, feed_dict_validate, val_loss):
+    # 计算训练集上的准确度
     acc = session.run(accuracy, feed_dict=feed_dict_train)
     val_acc = session.run(accuracy, feed_dict=feed_dict_validate)
     msg = "Epoch {0} --- Training Accuracy: {1:>6.1%}, Validation Accuracy: {2:>6.1%}, Validation Loss: {3:.3f}"
     print(msg.format(epoch + 1, acc, val_acc, val_loss))
 
 
+# 记录迭代次数
 total_iterations = 0
 
 
@@ -309,14 +321,21 @@ def optimize(num_iterations):
 
     for i in range(total_iterations,
                    total_iterations + num_iterations):
+
+        # x_batch:image, y_true_batch:labels
         x_batch, y_true_batch, _, cls_batch = data.train.next_batch(train_batch_size)
         x_valid_batch, y_valid_batch, _, valid_cls_batch = data.valid.next_batch(train_batch_size)
+
+        # [num examples, rows, columns, depth] -> [num examples, flattened image shape]
         x_batch = x_batch.reshape(train_batch_size, img_size_flat)
         x_valid_batch = x_valid_batch.reshape(train_batch_size, img_size_flat)
+
         feed_dict_train = {x: x_batch, y_true: y_true_batch}
         feed_dict_validate = {x: x_valid_batch, y_true: y_valid_batch}
+
         session.run(optimizer, feed_dict=feed_dict_train)
 
+        # 输出实时结果
         if i % int(data.train.num_examples / batch_size) == 0:
             val_loss = session.run(cost, feed_dict=feed_dict_validate)
             epoch = int(i / int(data.train.num_examples / batch_size))
@@ -332,6 +351,7 @@ def optimize(num_iterations):
                     break
 
     total_iterations += num_iterations
+
     end_time = time.time()
     time_dif = end_time - start_time
     print("Time elapsed: " + str(timedelta(seconds=int(round(time_dif)))))
