@@ -18,10 +18,10 @@ def get_images_url(page_url):
 
 
 if __name__ == '__main__':
-    keyword = '仓鼠表情'
+    keyword = '阿狸'
     # 可根据搜索页数下载
     page_start = 1
-    page_end = 15
+    page_end = 100
     images_per_page = 20
     images_url = []
     # 存入图片列表
@@ -43,5 +43,5 @@ if __name__ == '__main__':
         cnt += 1
         # 综合考虑每个种类下载两百张
         # 后期图片要经过处理剔除gif和损坏的图片
-        if cnt >= 200:
+        if cnt >= 1500:
             break
