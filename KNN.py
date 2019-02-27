@@ -22,7 +22,7 @@ print('raw image accuracy: {:.2f}%'.format(accuracy1 * 100))
 print('histogram image accuracy: {:.2f}%\n'.format(accuracy2 * 100))
 '''
 
-k_range = range(1, 21)
+k_range = range(1, 2)
 k_scores = []
 
 for k in k_range:
@@ -44,6 +44,7 @@ plt.plot(k_range, k_scores)
 plt.xlabel('Value of K for KNN')
 plt.ylabel('raw image accuracy')
 plt.show()
+
 
 k_scores = []
 for k in k_range:

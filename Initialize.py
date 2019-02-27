@@ -44,6 +44,12 @@ for imagePath in imagePaths:
     label = imagePath.split(os.path.sep)[-1].split('.')[0]
     # 原始图片
     pixels = feature_vectorized(image)
+    # try:
+    #     pixels = feature_vectorized(image)
+    # except Exception as e:
+    #     print(imagePath)
+    #     os.remove(imagePath)
+    #     continue
     # 直方图
     his = color_histogram(image)
 
