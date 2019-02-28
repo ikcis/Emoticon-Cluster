@@ -3,7 +3,7 @@ from imutils import paths
 import os
 import numpy as np
 from sklearn.model_selection import train_test_split
-
+import PyQt5
 
 # 图像特征向量 调整图像大小 然后将图像平坦化为行像素列表
 def feature_vectorized(image, size=(128, 128)):
@@ -44,12 +44,13 @@ for imagePath in imagePaths:
     label = imagePath.split(os.path.sep)[-1].split('.')[0]
     # 原始图片
     pixels = feature_vectorized(image)
-    # try:
-    #     pixels = feature_vectorized(image)
-    # except Exception as e:
-    #     print(imagePath)
-    #     os.remove(imagePath)
-    #     continue
+
+    try:
+        pixels = feature_vectorized(image)
+    except Warning as e:
+        print(imagePath)
+        # os.remove(imagePath)
+        continue
     # 直方图
     his = color_histogram(image)
 

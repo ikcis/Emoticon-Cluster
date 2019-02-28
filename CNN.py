@@ -179,7 +179,7 @@ img_size_flat = img_size * img_size * num_channels
 # 高度和宽度
 img_shape = (img_size, img_size)
 
-classes = ['Ali', 'Cangshu', 'Huaji', 'Panda', 'Sadfrog']
+classes = ['Cat', 'Kumamon', 'Panda', 'Peppa', 'Tom&Jerry']
 num_classes = len(classes)
 
 batch_size = 32
@@ -357,10 +357,11 @@ def optimize(num_iterations):
     print("Time elapsed: " + str(timedelta(seconds=int(round(time_dif)))))
 
 
-optimize(num_iterations=1000)
-x_test = data.valid.images.reshape(100, img_size_flat)
+optimize(num_iterations=10000)
+x_test = data.valid.images.reshape(1271, img_size_flat)
 feed_dict_test = {x: x_test, y_true: data.valid.labels}
 val_loss = session.run(cost, feed_dict=feed_dict_test)
 val_acc = session.run(accuracy, feed_dict=feed_dict_test)
-msg_test = "Test Accuracy: {0:>6.1%}"
+msg_test = "Validation Accuracy: {0:>6.1%}"
+# msg_test = "Test Accuracy: {0:>6.1%}"
 print(msg_test.format(val_acc))

@@ -22,10 +22,11 @@ print('raw image accuracy: {:.2f}%'.format(accuracy1 * 100))
 print('histogram image accuracy: {:.2f}%\n'.format(accuracy2 * 100))
 '''
 
-k_range = range(1, 2)
+k_range = range(1, 11)
 k_scores = []
 
 for k in k_range:
+    print(k)
     # n_neighbors 选取最近的点的个数k 默认为5
     # weight 每个点的权重 默认为'uniform'全部相等 若为'distance'则距离越近权重越大
     # algorithm 计算最近邻居的算法 默认为auto
@@ -38,26 +39,32 @@ for k in k_range:
     model.fit(train_ri, train_ril)
     accuracy1 = model.score(test_ri, test_ril)
     k_scores.append(accuracy1)
+    print(accuracy1)
 
 # 结果可视化
 plt.plot(k_range, k_scores)
 plt.xlabel('Value of K for KNN')
 plt.ylabel('raw image accuracy')
-plt.show()
+# plt.show()
+# plt.savefig('raw')
 
+print()
 
 k_scores = []
 for k in k_range:
+    print(k)
     model = KNeighborsClassifier(n_neighbors=k,
                                  weights='uniform', algorithm='auto', leaf_size=30,
                                  p=2, metric='minkowski', metric_params=None, n_jobs=None)
     model.fit(train_hi, train_hil)
     accuracy2 = model.score(test_hi, test_hil)
     k_scores.append(accuracy2)
+    print(accuracy2)
 
 # 结果可视化
 
 plt.plot(k_range, k_scores)
 plt.xlabel('Value of K for KNN')
 plt.ylabel('histogram image accuracy')
-plt.show()
+# plt.show()
+plt.savefig('res')
